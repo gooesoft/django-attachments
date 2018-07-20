@@ -34,7 +34,8 @@ class Attachment(models.Model):
     object_id = models.BigIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="created_attachments",
-        verbose_name=_('creator'), on_delete=models.CASCADE)
+                                verbose_name=_('creator'), on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, blank=False)
     attachment_file = models.FileField(_('attachment'), upload_to=attachment_upload)
     created = models.DateTimeField(_('created'), auto_now_add=True)
     modified = models.DateTimeField(_('modified'), auto_now=True)
@@ -48,11 +49,17 @@ class Attachment(models.Model):
         )
 
     def __str__(self):
-        return _('{username} attached {filename}').format(
-            username=self.creator.get_username(),
-            filename=self.attachment_file.name
+        return _('{username} attached {name}').format(
+            username=self.creator,
+            name=self.name
         )
 
     @property
     def filename(self):
         return os.path.split(self.attachment_file.name)[1]
+
+    def url(self):
+        """
+        Returns relative URL of the attachment file, which already includes MEDIA_URL value
+        """
+        return os.path.join(self.attachment_file.storage.base_url, self.attachment_file.name)

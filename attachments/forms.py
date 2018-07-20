@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import filesizeformat
+from django.utils.text import get_valid_filename
 from django.utils.translation import ugettext_lazy as _
 
 from attachments.models import Attachment
@@ -29,4 +30,5 @@ class AttachmentForm(forms.ModelForm):
         self.instance.creator = request.user
         self.instance.content_type = ContentType.objects.get_for_model(obj)
         self.instance.object_id = obj.pk
+        self.instance.name = get_valid_filename(self.instance.attachment_file.name)
         super(AttachmentForm, self).save(*args, **kwargs)
