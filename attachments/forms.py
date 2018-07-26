@@ -21,10 +21,11 @@ def validate_max_size(data):
 class AttachmentForm(forms.ModelForm):
     attachment_file = forms.FileField(label=_('Upload attachment'),
                                       validators=[validate_max_size])
+    category = forms.CharField(widget=forms.HiddenInput())
 
     class Meta:
         model = Attachment
-        fields = ('attachment_file', 'category')
+        fields = ('attachment_file','category')
 
     def save(self, request, obj, *args, **kwargs):
         self.instance.creator = request.user
