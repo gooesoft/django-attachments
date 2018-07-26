@@ -11,8 +11,14 @@ from attachments.views import add_url_for_obj
 
 register = Library()
 
+categories = {
+    '': Attachment.DEFAULT,
+    'INVOICE': Attachment.INVOICE,
+    'RECEIPT': Attachment.RECEIPT
+}
+
 @register.inclusion_tag('attachments/add_form.html', takes_context=True)
-def attachment_form(context, obj):
+def attachment_form(context, obj, category=''):
     """
     Renders a "upload attachment" form.
 
@@ -20,8 +26,14 @@ def attachment_form(context, obj):
     attachments.
     """
     if context['user'].has_perm('attachments.add_attachment'):
+
+        if category in categories:
+            category = categories[category]
+        else:
+            category = Attachment.DEFAULT
+
         return {
-            'form': AttachmentForm(),
+            'form': AttachmentForm(initial={'category': category}),
             'form_url': add_url_for_obj(obj),
             'next': context.request.build_absolute_uri(),
         }
@@ -51,13 +63,17 @@ def attachment_delete_link(context, attachment):
     return {'delete_url': None}
 
 @register.simple_tag
-def attachments_count(obj):
+def attachments_count(obj, category=''):
     """
     Counts attachments that are attached to a given object.
 
-        {% attachments_count obj %}
+        {% attachments_count obj category %}
     """
-    return Attachment.objects.attachments_for_object(obj).count()
+    if category in categories:
+        category = categories[category]
+    else:
+        category = Attachment.DEFAULT
+    return Attachment.objects.attachments_for_object(obj, category).count()
 
 if django.VERSION < (1, 9):
     # simple_tag in Django 1.8 doesn't have the functionality we need, so use
@@ -68,7 +84,7 @@ else:
     simple_tag = register.simple_tag
 
 @simple_tag
-def get_attachments_for(obj, *args, **kwargs):
+def get_attachments_for(obj, category='', *args, **kwargs):
     """
     Resolves attachments that are attached to a given object. You can specify
     the variable name in the context the attachments are stored using the `as`
@@ -76,6 +92,6 @@ def get_attachments_for(obj, *args, **kwargs):
 
     Syntax::
 
-        {% get_attachments_for obj as "my_attachments" %}
+        {% get_attachments_for obj category as "my_attachments" %}
     """
-    return Attachment.objects.attachments_for_object(obj)
+    return Attachment.objects.attachments_for_object(obj, category)

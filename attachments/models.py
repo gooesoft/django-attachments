@@ -20,14 +20,25 @@ def attachment_upload(instance, filename):
 
 
 class AttachmentManager(models.Manager):
-    def attachments_for_object(self, obj):
+    def attachments_for_object(self, obj, category):
         object_type = ContentType.objects.get_for_model(obj)
         return self.filter(content_type__pk=object_type.id,
-                           object_id=obj.pk)
+                           object_id=obj.pk,
+                           category=category)
 
 
 @python_2_unicode_compatible
 class Attachment(models.Model):
+    INVOICE = 'INVOICE'
+    RECEIPT = 'RECEIPT'
+    DEFAULT = ''
+
+    TYPES = (
+        (DEFAULT, ''),
+        (INVOICE, 'Invoice'),
+        (RECEIPT, 'Receipt'),
+    )
+
     objects = AttachmentManager()
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
@@ -39,6 +50,7 @@ class Attachment(models.Model):
     attachment_file = models.FileField(_('attachment'), upload_to=attachment_upload)
     created = models.DateTimeField(_('created'), auto_now_add=True)
     modified = models.DateTimeField(_('modified'), auto_now=True)
+    category = models.CharField(choices=TYPES, default=DEFAULT, max_length=30)
 
     class Meta:
         verbose_name = _("attachment")
