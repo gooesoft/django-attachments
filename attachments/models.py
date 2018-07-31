@@ -31,10 +31,10 @@ class AttachmentManager(models.Manager):
 class Attachment(models.Model):
     INVOICE = 'INVOICE'
     RECEIPT = 'RECEIPT'
-    DEFAULT = ''
+    DEFAULT = 'FILE'
 
     TYPES = (
-        (DEFAULT, ''),
+        (DEFAULT, 'File'),
         (INVOICE, 'Invoice'),
         (RECEIPT, 'Receipt'),
     )
