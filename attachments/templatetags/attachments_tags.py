@@ -94,4 +94,8 @@ def get_attachments_for(obj, category='', *args, **kwargs):
 
         {% get_attachments_for obj category as "my_attachments" %}
     """
+    if category in categories:
+        category = categories[category]
+    else:
+        category = Attachment.DEFAULT
     return Attachment.objects.attachments_for_object(obj, category)
