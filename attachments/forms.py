@@ -12,20 +12,20 @@ from attachments.models import Attachment
 
 def validate_max_size(data):
     if hasattr(settings, 'FILE_UPLOAD_MAX_SIZE') and \
-       data.size > settings.FILE_UPLOAD_MAX_SIZE:
+                    data.size > settings.FILE_UPLOAD_MAX_SIZE:
         raise forms.ValidationError(
             _('File exceeds maximum size of {size}').format(
                 size=filesizeformat(settings.FILE_UPLOAD_MAX_SIZE)))
 
-        
+
 class AttachmentForm(forms.ModelForm):
     attachment_file = forms.FileField(label=_('Upload attachment'),
                                       validators=[validate_max_size])
-    category = forms.CharField(widget=forms.HiddenInput())
+    category = forms.CharField(widget=forms.HiddenInput(), initial='', required=False)
 
     class Meta:
         model = Attachment
-        fields = ('attachment_file','category')
+        fields = ('attachment_file', 'category')
 
     def save(self, request, obj, *args, **kwargs):
         self.instance.creator = request.user
