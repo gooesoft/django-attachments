@@ -50,7 +50,7 @@ class Attachment(models.Model):
     attachment_file = models.FileField(_('attachment'), upload_to=attachment_upload)
     created = models.DateTimeField(_('created'), auto_now_add=True)
     modified = models.DateTimeField(_('modified'), auto_now=True)
-    category = models.CharField(choices=TYPES, default=DEFAULT, max_length=30)
+    category = models.CharField(default=DEFAULT, max_length=30)
 
     class Meta:
         verbose_name = _("attachment")
